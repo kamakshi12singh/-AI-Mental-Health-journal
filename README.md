@@ -1,33 +1,24 @@
-# Serenity AI - Interactive Experience 🚀
+# 🌿 Serenity | AI Mental Health Companion
 
-A highly dynamic, playful, and visually rich digital space designed to help you untangle your thoughts.
-
-## 🎨 Design Philosophy: The Awwwards Experience
-We threw out the boring, rigid dashboard templates. This project embraces a **Premium, Motion-Heavy, and Energetic** aesthetic inspired by top-tier creative developer portfolios and internet culture:
-- **Buttery Smooth Physics:** Powered by Lenis for fluid, friction-based scrolling.
-- **Magnetic Energy:** Buttons and links pull toward your custom cursor, making the interface feel tangibly alive.
-- **Cinematic Reveals:** Scroll-triggered GSAP animations sequence elements onto the screen gracefully.
-- **Playful Elements:** Floating SVG sticker blobs with parallax scroll effects add unexpected delight.
-- **Vibrant Palette:** Soft cream backgrounds contrasted with Electric Orange (`#FF5A36`), Vibrant Purple (`#8C52FF`), and Sunny Yellow.
+A radically interactive, playful, yet peaceful space to reflect on your day. This is a **fully static** website designed to run directly on GitHub Pages.
 
 ## ✨ Features
-1. **Unstructured Journaling:** A clean, playful writing environment.
-2. **Empathetic AI Reflection:** VADER-powered sentiment analysis that reads the room and drops a vibe check.
-3. **Voice Dictation:** A Web Speech API integration that lets you speak your thoughts.
-4. **Organic Breathing Exercise:** An animated SVG blob that morphs fluidly to guide your breathing.
-5. **Quick Vibe Tags:** Magnetic, animated tags to quickly append your emotional state.
-6. **Emotional Flow:** A vibrant, grid-free chart to visualize your momentum over the last 7 days.
+- **Modern Awwwards-style UI**: Fluid GSAP animations, Lenis smooth scrolling, and organic SVG morphing.
+- **AI Sentiment Analysis**: Built-in JavaScript-based sentiment analyzer (works offline and on static hosts).
+- **Private Journaling**: Your entries are stored locally in your browser's `localStorage`.
+- **Breathe Work**: Interactive breathing exercises with fluid blob animations.
+- **No Backend Needed**: Fully functional as a static site.
 
-## 🛠️ Advanced Technology Stack
-- **Frontend Core:** HTML5, CSS3, Vanilla JavaScript.
-- **Animation Engine:** **GSAP** (GreenSock) & ScrollTrigger for complex sequencing and parallax.
-- **Scroll Physics:** **Lenis** by Studio Freight for smooth scrolling.
-- **Analytics:** Chart.js (customized for energetic aesthetic).
-- **Sentiment:** VADER Sentiment Analysis (via ESM).
+## 🚀 How to Enable the Live Link
+To make this website live on GitHub:
+1.  Open your repository settings on GitHub: [Settings](https://github.com/kamakshi12singh/-AI-Mental-Health-journal/settings/pages)
+2.  Go to the **Pages** section on the left sidebar.
+3.  Under **Build and deployment > Branch**, select `main` and `/ (root)`.
+4.  Click **Save**.
+5.  Wait about 60 seconds, and GitHub will provide your live URL!
 
-## 🚀 Live Demo
-Experience the magic here:
-**[https://kamakshi12singh.github.io/-AI-Mental-Health-journal/](https://kamakshi12singh.github.io/-AI-Mental-Health-journal/)**
+## 🛠️ Local Development
+Simply open `index.html` in any modern web browser. No servers or installation required.
 
 ---
-*Built for the modern mind. Every interaction was crafted to feel memorable and joyful.*
+*Crafted for the modern mind.*
