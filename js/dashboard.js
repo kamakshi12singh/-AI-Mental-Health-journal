@@ -1,5 +1,5 @@
-// --- Database Logic (localStorage) ---
-const DB_KEY = 'serenity_diary_entries';
+// --- Storage Engine ---
+const DB_KEY = 'serenity_vault_entries';
 
 function getEntries() {
     const data = localStorage.getItem(DB_KEY);
@@ -8,13 +8,7 @@ function getEntries() {
 
 function saveEntry(text, score, mood) {
     const entries = getEntries();
-    const entry = {
-        id: Date.now(),
-        date: new Date().toISOString(),
-        text: text,
-        score: score,
-        mood: mood
-    };
+    const entry = { id: Date.now(), date: new Date().toISOString(), text: text, score: score, mood: mood };
     entries.push(entry);
     localStorage.setItem(DB_KEY, JSON.stringify(entries));
     return entry;
@@ -25,209 +19,162 @@ function getStreak() {
     if (entries.length === 0) return 0;
     const days = [...new Set(entries.map(e => new Date(e.date).toDateString()))].sort((a, b) => new Date(b) - new Date(a));
     let streak = 0;
-    let expectedDate = new Date();
-    expectedDate.setHours(0,0,0,0);
-    const firstDate = new Date(days[0]);
-    firstDate.setHours(0,0,0,0);
-    const diffTime = Math.abs(expectedDate - firstDate);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-    if (diffDays <= 1) {
+    let expected = new Date(); expected.setHours(0,0,0,0);
+    const last = new Date(days[0]); last.setHours(0,0,0,0);
+    if (Math.ceil(Math.abs(expected - last) / (1000*60*60*24)) <= 1) {
         streak++;
-        expectedDate = new Date(firstDate);
-        expectedDate.setDate(expectedDate.getDate() - 1);
+        expected = new Date(last); expected.setDate(expected.getDate() - 1);
         for (let i = 1; i < days.length; i++) {
-            const currentDate = new Date(days[i]);
-            currentDate.setHours(0,0,0,0);
-            if (currentDate.getTime() === expectedDate.getTime()) {
-                streak++;
-                expectedDate.setDate(expectedDate.getDate() - 1);
-            } else { break; }
+            const current = new Date(days[i]); current.setHours(0,0,0,0);
+            if (current.getTime() === expected.getTime()) { streak++; expected.setDate(expected.getDate() - 1); }
+            else break;
         }
     }
     return streak;
 }
 
-// --- AI & Sentiment Logic ---
-function analyzeMood(text) {
-    const lowerText = text.toLowerCase();
-    const positiveWords = ['happy', 'great', 'good', 'joy', 'excited', 'calm', 'grateful', 'awesome', 'amazing', 'love', 'peace', 'nice', 'better', 'productive', 'blessed'];
-    const negativeWords = ['sad', 'bad', 'angry', 'anxious', 'stressed', 'tired', 'terrible', 'awful', 'hate', 'depressed', 'overwhelmed', 'frustrated', 'worst', 'lonely'];
-    
+// --- Intelligence ---
+function analyzeSentiment(text) {
+    const lower = text.toLowerCase();
+    const pos = ['vibrant', 'steady', 'grateful', 'peace', 'joy', 'clear', 'better', 'good', 'happy', 'productive', 'calm'];
+    const neg = ['heavy', 'low', 'stuck', 'anxious', 'tired', 'sad', 'hard', 'stressed', 'overwhelmed', 'lost', 'lonely'];
     let score = 0;
-    positiveWords.forEach(word => { if (lowerText.includes(word)) score += 0.4; });
-    negativeWords.forEach(word => { if (lowerText.includes(word)) score -= 0.4; });
-    
+    pos.forEach(w => { if (lower.includes(w)) score += 0.35; });
+    neg.forEach(w => { if (lower.includes(w)) score -= 0.35; });
     score = Math.max(-1, Math.min(1, score));
-    let mood = "Neutral";
-    if (score >= 0.2) mood = "Positive";
-    else if (score <= -0.2) mood = "Negative";
-    
-    return { score: score, mood: mood };
+    let mood = "Steady";
+    if (score >= 0.2) mood = "Vibrant";
+    else if (score <= -0.2) mood = "Low";
+    return { score, mood };
 }
 
-function getAdvice(mood) {
-    const advice = {
-        Positive: "You're radiating incredible energy today! 🌟 This is a perfect moment to set a new goal or simply share this light with someone else. What's one thing you want to achieve while feeling this good?",
-        Neutral: "You're in a steady, observational state. 🌱 It's a great time for deep focus or a quiet walk. How can you use this calm to prepare for your next big move?",
-        Negative: "It's brave of you to acknowledge these feelings. 💙 Remember, even the stormiest clouds eventually pass. Treat yourself with extreme kindness today—maybe a favorite drink or five minutes of absolute silence?"
+function getInsightAdvice(mood) {
+    const map = {
+        Vibrant: "Your mental clarity is exceptional today. 💎 Capture this momentum. What's one project or thought you can push forward while your energy is this high?",
+        Steady: "You're in a state of sustainable equilibrium. 🌊 This is the perfect time for deep work or meaningful connection. How can you nurture this balance?",
+        Low: "It's a quiet day for the soul. ☁️ There's no pressure to be 'on.' Allow yourself the grace of a slow pace. What's one small act of comfort you can offer yourself?"
     };
-    return advice[mood];
+    return map[mood];
 }
 
-// --- UI Framework ---
+// --- Interaction Core ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Navigation
-    const links = {
-        scribble: document.getElementById('linkScribble'),
-        insights: document.getElementById('linkInsights'),
-        practice: document.getElementById('linkPractice')
-    };
-    const sections = {
-        scribble: document.getElementById('sectionScribble'),
-        insights: document.getElementById('sectionInsights'),
-        practice: document.getElementById('sectionPractice')
-    };
+    // Nav
+    const navs = { scribble: document.getElementById('navScribble'), insights: document.getElementById('navInsights'), practice: document.getElementById('navPractice') };
+    const views = { scribble: document.getElementById('viewScribble'), insights: document.getElementById('viewInsights'), practice: document.getElementById('viewPractice') };
 
-    function switchSection(target) {
-        Object.values(sections).forEach(s => s.style.display = 'none');
-        Object.values(links).forEach(l => l.classList.remove('active'));
-        
-        sections[target].style.display = 'block';
-        links[target].classList.add('active');
-        
-        // Re-render chart if insights
+    function switchView(target) {
+        Object.values(views).forEach(v => v.style.display = 'none');
+        Object.values(navs).forEach(n => n.classList.remove('active'));
+        views[target].style.display = 'block';
+        navs[target].classList.add('active');
         if (target === 'insights') renderInsights();
     }
 
-    links.scribble.addEventListener('click', (e) => { e.preventDefault(); switchSection('scribble'); });
-    links.insights.addEventListener('click', (e) => { e.preventDefault(); switchSection('insights'); });
-    links.practice.addEventListener('click', (e) => { e.preventDefault(); switchSection('practice'); });
+    navs.scribble.addEventListener('click', (e) => { e.preventDefault(); switchView('scribble'); });
+    navs.insights.addEventListener('click', (e) => { e.preventDefault(); switchView('insights'); });
+    navs.practice.addEventListener('click', (e) => { e.preventDefault(); switchView('practice'); });
 
-    // Journal Logic
+    // Journal
     const diaryForm = document.getElementById('diaryForm');
     const diaryInput = document.getElementById('diaryInput');
     const analyzeBtn = document.getElementById('analyzeBtn');
-    const moodBtns = document.querySelectorAll('.mood-btn');
-    const streakCount = document.getElementById('streakCount');
-    const resultContainer = document.getElementById('resultContainer');
+    const moodChips = document.querySelectorAll('.mood-chip');
+    const streakEl = document.getElementById('streakCount');
+    const resultBox = document.getElementById('resultContainer');
     
-    let selectedMood = "";
-    moodBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            moodBtns.forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            selectedMood = btn.getAttribute('data-tag');
+    let activeMood = "";
+    moodChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            moodChips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            activeMood = chip.getAttribute('data-tag');
         });
     });
 
-    streakCount.innerText = getStreak();
+    streakEl.innerText = getStreak();
 
     diaryForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const text = diaryInput.value.trim();
         if (!text) return;
 
-        analyzeBtn.innerText = 'Reflecting...';
+        analyzeBtn.innerText = 'Preserving...';
         analyzeBtn.disabled = true;
 
         setTimeout(() => {
-            const contextText = selectedMood ? `[Feeling: ${selectedMood}] ${text}` : text;
-            const { score, mood } = analyzeMood(contextText);
-            saveEntry(contextText, score, mood);
+            const context = activeMood ? `[State: ${activeMood}] ${text}` : text;
+            const { score, mood } = analyzeSentiment(context);
+            saveEntry(context, score, mood);
             
-            // Show Results
-            document.getElementById('moodBadge').innerText = `Mood Detected: ${mood}`;
-            document.getElementById('aiAdvice').innerText = getAdvice(mood);
-            resultContainer.style.display = 'block';
+            document.getElementById('moodBadge').innerText = `State: ${mood}`;
+            document.getElementById('aiAdvice').innerText = getInsightAdvice(mood);
+            resultBox.style.display = 'block';
             
-            // Reset
             diaryInput.value = '';
-            moodBtns.forEach(b => b.classList.remove('selected'));
-            selectedMood = "";
-            streakCount.innerText = getStreak();
-            analyzeBtn.innerText = 'Save Reflection ✨';
+            moodChips.forEach(c => c.classList.remove('active'));
+            activeMood = "";
+            streakEl.innerText = getStreak();
+            analyzeBtn.innerText = 'Preserve Reflection';
             analyzeBtn.disabled = false;
-        }, 1000);
+        }, 1200);
     });
 
-    // Breathing Logic
-    const startBreatheBtn = document.getElementById('startBreatheBtn');
-    const breatheCircle = document.getElementById('breatheCircle');
-    const breatheText = document.getElementById('breatheText');
-    let breatheActive = false;
+    // Zen
+    const startBtn = document.getElementById('startBreatheBtn');
+    const circle = document.getElementById('breatheCircle');
+    const txt = document.getElementById('breatheText');
+    let zenMode = false;
 
-    startBreatheBtn.addEventListener('click', () => {
-        if (breatheActive) {
-            breatheActive = false;
-            startBreatheBtn.innerText = 'Start Session';
-            breatheText.innerText = 'Ready';
-            breatheCircle.style.transform = 'scale(1)';
-            return;
-        }
-        breatheActive = true;
-        startBreatheBtn.innerText = 'End Session';
-        runBreatheCycle();
+    startBtn.addEventListener('click', () => {
+        if (zenMode) { zenMode = false; startBtn.innerText = 'Begin Breathing'; txt.innerText = 'Ready'; circle.style.transform = 'scale(1)'; return; }
+        zenMode = true; startBtn.innerText = 'Stop Session'; cycleZen();
     });
 
-    function runBreatheCycle() {
-        if (!breatheActive) return;
-        breatheText.innerText = 'Inhale';
-        breatheCircle.style.transform = 'scale(1.5)';
+    function cycleZen() {
+        if (!zenMode) return;
+        txt.innerText = 'Inhale'; circle.style.transform = 'scale(1.4)';
         setTimeout(() => {
-            if (!breatheActive) return;
-            breatheText.innerText = 'Hold';
+            if (!zenMode) return;
+            txt.innerText = 'Hold';
             setTimeout(() => {
-                if (!breatheActive) return;
-                breatheText.innerText = 'Exhale';
-                breatheCircle.style.transform = 'scale(1)';
-                setTimeout(runBreatheCycle, 4000);
+                if (!zenMode) return;
+                txt.innerText = 'Exhale'; circle.style.transform = 'scale(1)';
+                setTimeout(cycleZen, 4000);
             }, 2000);
         }, 4000);
     }
 
-    // Insights Chart
-    let chartInstance = null;
+    // Chart
+    let chart = null;
     function renderInsights() {
         const entries = getEntries().slice(-7);
         const ctx = document.getElementById('moodChart').getContext('2d');
-        const labels = entries.map(e => new Date(e.date).toLocaleDateString());
-        const data = entries.map(e => e.score);
-
-        if (chartInstance) chartInstance.destroy();
-        chartInstance = new Chart(ctx, {
+        if (chart) chart.destroy();
+        chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Vibe',
-                    data: data,
-                    borderColor: '#58A6FF',
-                    tension: 0.4,
-                    fill: false,
-                    pointRadius: 6,
-                    pointBackgroundColor: '#BC8CFF'
-                }]
+                labels: entries.map(e => new Date(e.date).toLocaleDateString()),
+                datasets: [{ data: entries.map(e => e.score), borderColor: '#A78BFF', tension: 0.4, fill: false, pointRadius: 4 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: { min: -1, max: 1, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    x: { grid: { display: false } }
+                    y: { min: -1, max: 1, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { display: false } },
+                    x: { grid: { display: false }, ticks: { color: '#666' } }
                 },
                 plugins: { legend: { display: false } }
             }
         });
 
-        // History
-        const historyContainer = document.getElementById('historyContainer');
-        historyContainer.innerHTML = '<h3>Recent Spills</h3>';
+        const history = document.getElementById('historyContainer');
+        history.innerHTML = '<h2 class="serif-italic" style="margin-top: 4rem; margin-bottom: 2rem;">Archives</h2>';
         entries.reverse().forEach(e => {
-            const div = document.createElement('div');
-            div.className = 'glass-card';
-            div.style.marginBottom = '1rem';
-            div.innerHTML = `<p style="color: var(--primary); font-size: 0.9rem;">${new Date(e.date).toLocaleString()}</p><p>"${e.text}"</p>`;
-            historyContainer.appendChild(div);
+            const card = document.createElement('div');
+            card.className = 'bento-card'; card.style.marginBottom = '1.5rem'; card.style.padding = '2rem';
+            card.innerHTML = `<p style="color: var(--primary); font-size: 0.8rem; margin-bottom: 0.5rem;">${new Date(e.date).toLocaleString()}</p><p style="opacity: 0.7;">"${e.text}"</p>`;
+            history.appendChild(card);
         });
     }
 });

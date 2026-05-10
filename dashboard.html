@@ -3,102 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Serenity AI</title>
+    <title>Workspace | Serenity</title>
     <link rel="stylesheet" href="css/style.css">
-    
-    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="dashboard-page">
+<body class="obsidian-theme">
 
-    <div class="dashboard-layout">
-        <!-- Persistent Sidebar -->
+    <div class="app-container">
+        <!-- Persistent Navigation -->
         <aside class="sidebar">
-            <a href="index.html" class="logo">Serenity.</a>
+            <a href="index.html" class="nav-brand">Serenity.</a>
             
-            <nav class="sidebar-nav">
-                <li><a href="#" class="active" id="linkScribble"><span>Scribble</span></a></li>
-                <li><a href="#" id="linkInsights"><span>Insights</span></a></li>
-                <li><a href="#" id="linkPractice"><span>Practice</span></a></li>
-                <li><a href="index.html"><span>Log Out</span></a></li>
+            <nav class="nav-menu">
+                <li><a href="#" class="active" id="navScribble"><span>Scribble</span></a></li>
+                <li><a href="#" id="navInsights"><span>Insights</span></a></li>
+                <li><a href="#" id="navPractice"><span>Zen</span></a></li>
+                <li><a href="index.html"><span>Exit</span></a></li>
             </nav>
 
-            <div class="streak-widget">
-                <p style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Streak</p>
-                <div class="streak-val"><span id="streakCount">0</span>🔥</div>
+            <div class="streak-box">
+                <p style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 0.5rem;">Consistency</p>
+                <div class="streak-number"><span id="streakCount">0</span></div>
+                <p style="font-size: 0.8rem; color: var(--primary);">Day Streak</p>
             </div>
         </aside>
 
-        <!-- Main Workspace -->
-        <main class="main-content">
+        <!-- Dynamic Workspace -->
+        <main class="main-view">
             
-            <!-- Scribble / Journal Section -->
-            <section id="sectionScribble" class="entry-canvas">
-                <header style="margin-bottom: 3rem;">
-                    <h1 class="serif-italic">How are you today?</h1>
-                    <p class="subtitle">Spill your thoughts. Your mind deserves a safe space to land.</p>
-                </header>
+            <!-- Journaling View -->
+            <section id="viewScribble">
+                <div class="bento-card">
+                    <h1 class="serif-italic">What's on your mind?</h1>
+                    <p class="subtitle" style="margin-top: 1rem; margin-bottom: 3rem;">This is your private canvas. No filters, just raw thought.</p>
 
-                <div class="glass-card">
-                    <div class="mood-selector" id="moodTagsContainer">
-                        <div class="mood-btn" data-tag="Happy">Happy 😁</div>
-                        <div class="mood-btn" data-tag="Anxious">Anxious 😬</div>
-                        <div class="mood-btn" data-tag="Tired">Tired 😴</div>
-                        <div class="mood-btn" data-tag="Grateful">Grateful 🙏</div>
-                        <div class="mood-btn" data-tag="Stressed">Stressed 🤯</div>
-                        <div class="mood-btn" data-tag="Calm">Calm 🌊</div>
+                    <div class="mood-chip-group" id="moodTagsContainer">
+                        <div class="mood-chip" data-tag="Vibrant">Vibrant ✨</div>
+                        <div class="mood-chip" data-tag="Steady">Steady 🌊</div>
+                        <div class="mood-chip" data-tag="Low">Low ☁️</div>
+                        <div class="mood-chip" data-tag="Grateful">Grateful 🙏</div>
+                        <div class="mood-chip" data-tag="Overwhelmed">Heavy 🤯</div>
                     </div>
 
                     <form id="diaryForm">
-                        <textarea id="diaryInput" placeholder="Start typing here..." required></textarea>
-                        
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem;">
-                            <button type="button" id="micBtn" class="btn-secondary">🎤 Speak</button>
-                            <button type="submit" id="analyzeBtn" class="btn-primary">Save Reflection ✨</button>
+                        <textarea id="diaryInput" placeholder="Start writing..."></textarea>
+                        <div style="display: flex; justify-content: flex-end; margin-top: 3rem;">
+                            <button type="submit" id="analyzeBtn" class="btn-primary">Preserve Reflection</button>
                         </div>
                     </form>
                 </div>
 
-                <!-- Result Area (Hidden until submit) -->
-                <div id="resultContainer" class="glass-card" style="display: none; margin-top: 2rem; border-color: var(--primary);">
-                    <div id="moodBadge" style="margin-bottom: 1rem; font-weight: 800; color: var(--primary);"></div>
-                    <p id="aiAdvice" style="font-family: 'Playfair Display', serif; font-size: 1.5rem; font-style: italic;"></p>
+                <div id="resultContainer" class="bento-card" style="display: none; margin-top: 2rem; border-color: var(--primary);">
+                    <h3 id="moodBadge" style="color: var(--primary); margin-bottom: 1rem;"></h3>
+                    <p id="aiAdvice" class="serif-italic" style="font-size: 1.4rem; opacity: 0.8;"></p>
                 </div>
             </section>
 
-            <!-- Insights Section -->
-            <section id="sectionInsights" style="display: none;">
-                <header style="margin-bottom: 3rem;">
-                    <h1 class="serif-italic">Your Journey</h1>
-                    <p class="subtitle">Tracking your emotional growth over time.</p>
-                </header>
+            <!-- Data / Insights View -->
+            <section id="viewInsights" style="display: none;">
+                <h1 class="serif-italic">Your Patterns</h1>
+                <p class="subtitle" style="margin-bottom: 3rem;">Visualizing your emotional trajectory.</p>
 
-                <div class="glass-card" style="margin-bottom: 2rem;">
-                    <h3>Mood Landscape</h3>
+                <div class="bento-card" style="margin-bottom: 2rem;">
                     <div style="height: 300px;">
                         <canvas id="moodChart"></canvas>
                     </div>
                 </div>
 
-                <div id="historyContainer">
-                    <!-- History entries injected here -->
-                </div>
+                <div id="historyContainer"></div>
             </section>
 
-            <!-- Practice / Zen Section -->
-            <section id="sectionPractice" style="display: none; text-align: center;">
-                <header style="margin-bottom: 5rem;">
-                    <h1 class="serif-italic">Breathe.</h1>
-                    <p class="subtitle">A moment of silence for a noisy world.</p>
-                </header>
+            <!-- Practice View -->
+            <section id="viewPractice" style="display: none; text-align: center;">
+                <h1 class="serif-italic">Center Yourself</h1>
+                <p class="subtitle" style="margin-bottom: 5rem;">A 4-second breath cycle for clarity.</p>
 
-                <div class="glass-card" style="max-width: 500px; margin: 0 auto; padding: 5rem;">
-                    <div id="breatheCircle" style="width: 200px; height: 200px; background: var(--primary); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; transition: all 1s ease;">
-                        <span id="breatheText" style="font-weight: 800; font-size: 1.5rem; color: #0B0E14;">Ready</span>
+                <div class="bento-card" style="max-width: 500px; margin: 0 auto; padding: 5rem;">
+                    <div id="breatheCircle" style="width: 180px; height: 180px; background: var(--primary); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; box-shadow: var(--glow); transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);">
+                        <span id="breatheText" style="font-weight: 800; color: #000; font-size: 1.2rem;">Ready</span>
                     </div>
-                    <button id="startBreatheBtn" class="btn-primary" style="margin-top: 3rem;">Start Session</button>
+                    <button id="startBreatheBtn" class="btn-primary" style="margin-top: 4rem;">Begin Breathing</button>
                 </div>
             </section>
 

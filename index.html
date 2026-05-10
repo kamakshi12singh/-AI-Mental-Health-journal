@@ -3,52 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Serenity | Premium AI Journaling</title>
+    <title>Serenity | Minimalist AI Journaling</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
-<body>
-    <nav>
-        <a href="index.html" class="logo">Serenity.</a>
-        <div style="display: flex; gap: 2rem; align-items: center;">
-            <a href="about.html" class="btn-secondary" style="border: none;">Our Story</a>
-            <a href="dashboard.html" class="btn-primary">Open Journal</a>
-        </div>
-    </nav>
+<body style="background: var(--bg-main); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 2rem;">
+    
+    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, rgba(167, 139, 255, 0.05), transparent 80%); pointer-events: none; z-index: 0;"></div>
 
-    <main style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 80vh;">
-        <div class="glass-card" style="max-width: 800px; padding: 5rem;">
-            <h1 class="serif-italic" style="margin-bottom: 2rem;">Untangle your mind.</h1>
-            <p class="subtitle" style="margin: 0 auto 3rem auto;">A sophisticated, AI-powered space for self-reflection. No judgment, just clarity.</p>
-            <div style="display: flex; gap: 1.5rem; justify-content: center;">
-                <a href="dashboard.html" class="btn-primary" style="padding: 1.5rem 4rem; font-size: 1.3rem;">Get Started</a>
-            </div>
+    <main style="position: relative; z-index: 1; max-width: 900px;">
+        <h1 class="serif-italic" style="margin-bottom: 1.5rem; letter-spacing: -0.05em;">Silence the noise.</h1>
+        <p class="subtitle" style="font-size: 1.4rem; max-width: 600px; margin: 0 auto 4rem auto; opacity: 0.6;">A minimalist, private sanctuary for your thoughts. Powered by local AI, crafted for clarity.</p>
+        
+        <div style="display: flex; gap: 1.5rem; justify-content: center; align-items: center;">
+            <a href="dashboard.html" class="btn-primary" style="padding: 1.5rem 4rem; font-size: 1.2rem;">Enter Workspace</a>
         </div>
 
-        <section style="margin-top: 8rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; width: 100%; max-width: 1200px;">
-            <div class="glass-card" style="text-align: left; padding: 2rem;">
-                <h3 style="color: var(--primary);">Intelligent</h3>
-                <p style="color: var(--text-muted);">Local AI analyzes your mood patterns without your data ever leaving your browser.</p>
+        <section style="margin-top: 8rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+            <div class="bento-card" style="padding: 2rem; text-align: left;">
+                <p style="color: var(--primary); font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem;">Vault</p>
+                <p style="font-size: 1rem; opacity: 0.7;">Local-first storage. Your data never leaves your device.</p>
             </div>
-            <div class="glass-card" style="text-align: left; padding: 2rem;">
-                <h3 style="color: var(--secondary);">Private</h3>
-                <p style="color: var(--text-muted);">Secure, local-first storage means your thoughts are for your eyes only.</p>
+            <div class="bento-card" style="padding: 2rem; text-align: left;">
+                <p style="color: var(--secondary); font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem;">Insight</p>
+                <p style="font-size: 1rem; opacity: 0.7;">Non-invasive AI patterns analyze your emotional trajectory.</p>
             </div>
-            <div class="glass-card" style="text-align: left; padding: 2rem;">
-                <h3 style="color: var(--accent);">Modern</h3>
-                <p style="color: var(--text-muted);">A sleek, minimalist interface designed for focus and emotional clarity.</p>
+            <div class="bento-card" style="padding: 2rem; text-align: left;">
+                <p style="color: var(--accent); font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem;">Zen</p>
+                <p style="font-size: 1rem; opacity: 0.7;">Integrated breathing practice for immediate mental reset.</p>
             </div>
         </section>
     </main>
 
-    <footer style="margin-top: 10rem; opacity: 0.5;">
-        <p>&copy; 2026 Serenity AI. Premium Mental Wellness.</p>
+    <footer style="margin-top: 6rem; opacity: 0.3; font-size: 0.8rem; letter-spacing: 1px;">
+        <p>&copy; 2026 SERENITY LABS. OBSIDIAN EDITION.</p>
     </footer>
 
     <script>
-        // Simple reveal animation
-        gsap.from(".glass-card", { opacity: 0, y: 50, duration: 1.5, stagger: 0.3, ease: "power4.out" });
+        gsap.from("main > *", { opacity: 0, y: 30, duration: 1.2, stagger: 0.2, ease: "expo.out" });
     </script>
 </body>
 </html>
