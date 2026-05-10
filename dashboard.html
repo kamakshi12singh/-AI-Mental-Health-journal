@@ -3,123 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Your private mental health journal.">
-    <title>Journal | Interactive Space</title>
+    <title>Dashboard | Serenity AI</title>
     <link rel="stylesheet" href="css/style.css">
     
-    <!-- GSAP & Lenis -->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
+<body class="dashboard-page">
 
-    <nav>
-        <a href="index.html" class="logo magnetic-btn">Serenity.</a>
-        <ul class="nav-links">
-            <li><a href="index.html" class="magnetic-btn">Home</a></li>
-            <li><a href="dashboard.html" class="magnetic-btn" style="color: var(--primary);">Journal</a></li>
-        </ul>
-    </nav>
+    <div class="dashboard-layout">
+        <!-- Persistent Sidebar -->
+        <aside class="sidebar">
+            <a href="index.html" class="logo">Serenity.</a>
+            
+            <nav class="sidebar-nav">
+                <li><a href="#" class="active" id="linkScribble"><span>Scribble</span></a></li>
+                <li><a href="#" id="linkInsights"><span>Insights</span></a></li>
+                <li><a href="#" id="linkPractice"><span>Practice</span></a></li>
+                <li><a href="index.html"><span>Log Out</span></a></li>
+            </nav>
 
-    <main class="container-narrow gsap-reveal">
-        <div class="streak-banner">
-            <div>
-                <h2 style="margin: 0; font-size: 2.5rem; font-weight: 800; letter-spacing: -1px;">Vibe Check ✌️</h2>
-                <p style="color: var(--text-muted); margin: 0; font-size: 1.2rem;">Drop your thoughts. We won't judge.</p>
+            <div class="streak-widget">
+                <p style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Streak</p>
+                <div class="streak-val"><span id="streakCount">0</span>🔥</div>
             </div>
-            <div class="streak-count-wrapper magnetic-btn">
-                <div style="font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Streak 🔥</div>
-                <div class="value"><span id="streakCount">0</span></div>
-            </div>
-        </div>
+        </aside>
 
-        <!-- Dashboard Navigation -->
-        <div style="display: flex; gap: 1.5rem; margin-bottom: 3rem; padding-bottom: 1rem;">
-            <button class="btn-secondary active magnetic-btn" id="tabWrite">Scribble</button>
-            <button class="btn-secondary magnetic-btn" id="tabInsights">Data 📊</button>
-            <button class="btn-secondary magnetic-btn" id="tabBreathe">Zen 🧘</button>
-        </div>
+        <!-- Main Workspace -->
+        <main class="main-content">
+            
+            <!-- Scribble / Journal Section -->
+            <section id="sectionScribble" class="entry-canvas">
+                <header style="margin-bottom: 3rem;">
+                    <h1 class="serif-italic">How are you today?</h1>
+                    <p class="subtitle">Spill your thoughts. Your mind deserves a safe space to land.</p>
+                </header>
 
-        <!-- Write Entry Section -->
-        <div id="writeSection" class="gsap-reveal-stagger">
-            <!-- Affirmation Widget -->
-            <div style="background: var(--accent); color: var(--text-main); padding: 1.5rem 2rem; border-radius: 20px; margin-bottom: 3rem; transform: rotate(-1deg);">
-                <p id="affirmationText" style="font-family: 'Playfair Display', serif; font-size: 1.5rem; font-style: italic; font-weight: 600;">"Loading good vibes..."</p>
-            </div>
+                <div class="glass-card">
+                    <div class="mood-selector" id="moodTagsContainer">
+                        <div class="mood-btn" data-tag="Happy">Happy 😁</div>
+                        <div class="mood-btn" data-tag="Anxious">Anxious 😬</div>
+                        <div class="mood-btn" data-tag="Tired">Tired 😴</div>
+                        <div class="mood-btn" data-tag="Grateful">Grateful 🙏</div>
+                        <div class="mood-btn" data-tag="Stressed">Stressed 🤯</div>
+                        <div class="mood-btn" data-tag="Calm">Calm 🌊</div>
+                    </div>
 
-            <div style="background: transparent;">
-                <form id="diaryForm">
-                    <div class="form-group gsap-stagger-container">
-                        <label style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; display: block;">How are you feeling?</label>
-                        <div class="mood-tags" id="moodTagsContainer">
-                            <span class="mood-tag magnetic-btn gsap-reveal-stagger" data-tag="Happy">Happy 😁</span>
-                            <span class="mood-tag magnetic-btn gsap-reveal-stagger" data-tag="Anxious">Anxious 😬</span>
-                            <span class="mood-tag magnetic-btn gsap-reveal-stagger" data-tag="Tired">Tired 😴</span>
-                            <span class="mood-tag magnetic-btn gsap-reveal-stagger" data-tag="Grateful">Grateful 🙏</span>
-                            <span class="mood-tag magnetic-btn gsap-reveal-stagger" data-tag="Stressed">Stressed 🤯</span>
-                            <span class="mood-tag magnetic-btn gsap-reveal-stagger" data-tag="Calm">Calm 🌊</span>
+                    <form id="diaryForm">
+                        <textarea id="diaryInput" placeholder="Start typing here..." required></textarea>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem;">
+                            <button type="button" id="micBtn" class="btn-secondary">🎤 Speak</button>
+                            <button type="submit" id="analyzeBtn" class="btn-primary">Save Reflection ✨</button>
                         </div>
-                    </div>
-                    
-                    <div class="form-group" style="position: relative; margin-top: 3rem;">
-                        <textarea id="diaryInput" rows="8" placeholder="Spill the tea..." required></textarea>
-                    </div>
-                    
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem;">
-                        <button type="button" id="micBtn" class="magnetic-btn" title="Start voice recording">🎤 Voice dictate</button>
-                        <button type="submit" class="btn-primary magnetic-btn" id="analyzeBtn" style="font-size: 1.3rem;">Save & Reflect ✨</button>
-                    </div>
-                </form>
-
-                <div id="resultContainer" style="display: none; margin-top: 4rem; padding: 3rem; background: var(--bg-alt); border-radius: 30px;">
-                    <div id="moodBadge" class="badge" style="margin-bottom: 1.5rem; font-size: 1rem;"></div>
-                    <p id="aiAdvice" style="font-family: 'Playfair Display', serif; font-size: 1.6rem; font-style: italic; color: var(--secondary); line-height: 1.4;"></p>
+                    </form>
                 </div>
-            </div>
-        </div>
 
-        <!-- Insights Section -->
-        <div id="insightsSection" style="display: none;">
-            <h1 style="font-size: 4rem; letter-spacing: -2px;">Your Journey 🚀</h1>
-            <p class="subtitle" style="margin-bottom: 4rem;">The highs, the lows, and everything in between.</p>
-            
-            <div style="margin-bottom: 4rem; background: var(--bg-alt); border-radius: 30px; padding: 3rem;">
-                <h3 style="margin-bottom: 2rem; font-size: 1.5rem;">Emotional Flow (Last 7 Days)</h3>
-                <div style="height: 350px; width: 100%;">
-                    <canvas id="moodChart"></canvas>
+                <!-- Result Area (Hidden until submit) -->
+                <div id="resultContainer" class="glass-card" style="display: none; margin-top: 2rem; border-color: var(--primary);">
+                    <div id="moodBadge" style="margin-bottom: 1rem; font-weight: 800; color: var(--primary);"></div>
+                    <p id="aiAdvice" style="font-family: 'Playfair Display', serif; font-size: 1.5rem; font-style: italic;"></p>
                 </div>
-            </div>
+            </section>
 
-            <div class="gsap-stagger-container">
-                <h3 style="margin-bottom: 2rem; font-size: 1.5rem;">Recent Spills</h3>
+            <!-- Insights Section -->
+            <section id="sectionInsights" style="display: none;">
+                <header style="margin-bottom: 3rem;">
+                    <h1 class="serif-italic">Your Journey</h1>
+                    <p class="subtitle">Tracking your emotional growth over time.</p>
+                </header>
+
+                <div class="glass-card" style="margin-bottom: 2rem;">
+                    <h3>Mood Landscape</h3>
+                    <div style="height: 300px;">
+                        <canvas id="moodChart"></canvas>
+                    </div>
+                </div>
+
                 <div id="historyContainer">
-                    <!-- History injected here -->
+                    <!-- History entries injected here -->
                 </div>
-            </div>
-        </div>
+            </section>
 
-        <!-- Breathe Section -->
-        <div id="breatheSection" style="display: none; text-align: center; padding: 4rem 0;">
-            <h1 style="font-size: 4rem; letter-spacing: -2px;">Disconnect.</h1>
-            <p class="subtitle" style="margin: 0 auto 3rem auto;">Watch the blob. Sync your breathing.</p>
-            
-            <div class="breathe-container">
-                <div class="breathe-blob" id="breatheCircle"></div>
-                <span id="breatheText" style="position: absolute; font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 800; color: var(--bg-main); z-index: 10; pointer-events: none;">Ready</span>
-            </div>
-            
-            <button class="btn-primary magnetic-btn" id="startBreatheBtn" style="margin-top: 4rem; font-size: 1.5rem; padding: 1.5rem 4rem;">Begin Vibe Reset</button>
-        </div>
-    </main>
+            <!-- Practice / Zen Section -->
+            <section id="sectionPractice" style="display: none; text-align: center;">
+                <header style="margin-bottom: 5rem;">
+                    <h1 class="serif-italic">Breathe.</h1>
+                    <p class="subtitle">A moment of silence for a noisy world.</p>
+                </header>
 
-    <footer>
-        <p>Built for the modern mind. &copy; 2026</p>
-    </footer>
+                <div class="glass-card" style="max-width: 500px; margin: 0 auto; padding: 5rem;">
+                    <div id="breatheCircle" style="width: 200px; height: 200px; background: var(--primary); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; transition: all 1s ease;">
+                        <span id="breatheText" style="font-weight: 800; font-size: 1.5rem; color: #0B0E14;">Ready</span>
+                    </div>
+                    <button id="startBreatheBtn" class="btn-primary" style="margin-top: 3rem;">Start Session</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
 
     <script src="js/dashboard.js"></script>
-    <script src="js/animations.js"></script>
-    <script src="js/main.js"></script>
 </body>
 </html>

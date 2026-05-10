@@ -1,4 +1,3 @@
-// --- Robust Local Sentiment Analyzer (Works on file:/// without CORS issues) ---
 // --- Database Logic (localStorage) ---
 const DB_KEY = 'serenity_diary_entries';
 
@@ -24,62 +23,41 @@ function saveEntry(text, score, mood) {
 function getStreak() {
     const entries = getEntries();
     if (entries.length === 0) return 0;
-
-    // Group by unique days
     const days = [...new Set(entries.map(e => new Date(e.date).toDateString()))].sort((a, b) => new Date(b) - new Date(a));
-    
     let streak = 0;
-    let expectedDate = new Date(); // Today
+    let expectedDate = new Date();
     expectedDate.setHours(0,0,0,0);
-
     const firstDate = new Date(days[0]);
     firstDate.setHours(0,0,0,0);
-    
-    // Check if the most recent entry was today or yesterday
     const diffTime = Math.abs(expectedDate - firstDate);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-
     if (diffDays <= 1) {
         streak++;
         expectedDate = new Date(firstDate);
         expectedDate.setDate(expectedDate.getDate() - 1);
-        
         for (let i = 1; i < days.length; i++) {
             const currentDate = new Date(days[i]);
             currentDate.setHours(0,0,0,0);
-            
             if (currentDate.getTime() === expectedDate.getTime()) {
                 streak++;
                 expectedDate.setDate(expectedDate.getDate() - 1);
-            } else {
-                break;
-            }
+            } else { break; }
         }
     }
     return streak;
 }
 
-// --- AI Logic ---
+// --- AI & Sentiment Logic ---
 function analyzeMood(text) {
     const lowerText = text.toLowerCase();
-    
-    // Simple dictionary
-    const positiveWords = ['happy', 'great', 'good', 'joy', 'excited', 'calm', 'grateful', 'blessed', 'awesome', 'amazing', 'love', 'peace', 'nice', 'better'];
-    const negativeWords = ['sad', 'bad', 'angry', 'anxious', 'stressed', 'tired', 'terrible', 'awful', 'hate', 'depressed', 'overwhelmed', 'frustrated', 'worst'];
+    const positiveWords = ['happy', 'great', 'good', 'joy', 'excited', 'calm', 'grateful', 'awesome', 'amazing', 'love', 'peace', 'nice', 'better', 'productive', 'blessed'];
+    const negativeWords = ['sad', 'bad', 'angry', 'anxious', 'stressed', 'tired', 'terrible', 'awful', 'hate', 'depressed', 'overwhelmed', 'frustrated', 'worst', 'lonely'];
     
     let score = 0;
+    positiveWords.forEach(word => { if (lowerText.includes(word)) score += 0.4; });
+    negativeWords.forEach(word => { if (lowerText.includes(word)) score -= 0.4; });
     
-    positiveWords.forEach(word => {
-        if (lowerText.includes(word)) score += 0.5;
-    });
-    
-    negativeWords.forEach(word => {
-        if (lowerText.includes(word)) score -= 0.5;
-    });
-    
-    // Normalize score between -1 and 1
     score = Math.max(-1, Math.min(1, score));
-
     let mood = "Neutral";
     if (score >= 0.2) mood = "Positive";
     else if (score <= -0.2) mood = "Negative";
@@ -88,306 +66,168 @@ function analyzeMood(text) {
 }
 
 function getAdvice(mood) {
-    if (mood === "Positive") {
-        return "You're having a great day! Keep up the positive energy and maybe share your joy with someone around you. Let's keep the streak going! 🌟";
-    } else if (mood === "Neutral") {
-        return "It sounds like you had a balanced day. This is a good time to clear your mind, read a book, or go for a relaxing walk. 🌱";
-    } else {
-        return "It's completely okay to have a tough day. Take a deep breath. Try to engage in some self-care, listen to calming music, or talk to a friend. You've got this! 💙";
-    }
+    const advice = {
+        Positive: "You're radiating incredible energy today! 🌟 This is a perfect moment to set a new goal or simply share this light with someone else. What's one thing you want to achieve while feeling this good?",
+        Neutral: "You're in a steady, observational state. 🌱 It's a great time for deep focus or a quiet walk. How can you use this calm to prepare for your next big move?",
+        Negative: "It's brave of you to acknowledge these feelings. 💙 Remember, even the stormiest clouds eventually pass. Treat yourself with extreme kindness today—maybe a favorite drink or five minutes of absolute silence?"
+    };
+    return advice[mood];
 }
 
-// --- UI Logic ---
+// --- UI Framework ---
 document.addEventListener('DOMContentLoaded', () => {
-    // UI Elements
-    const streakCount = document.getElementById('streakCount');
-    const tabWrite = document.getElementById('tabWrite');
-    const tabInsights = document.getElementById('tabInsights');
-    const tabBreathe = document.getElementById('tabBreathe');
-    const writeSection = document.getElementById('writeSection');
-    const insightsSection = document.getElementById('insightsSection');
-    const breatheSection = document.getElementById('breatheSection');
-    
-    // New UI Elements
-    const moodTags = document.querySelectorAll('.mood-tag');
-    let selectedTags = [];
-    const micBtn = document.getElementById('micBtn');
-    const startBreatheBtn = document.getElementById('startBreatheBtn');
-    const breatheCircle = document.getElementById('breatheCircle');
-    const breatheText = document.getElementById('breatheText');
-    const affirmationText = document.getElementById('affirmationText');
-    
+    // Navigation
+    const links = {
+        scribble: document.getElementById('linkScribble'),
+        insights: document.getElementById('linkInsights'),
+        practice: document.getElementById('linkPractice')
+    };
+    const sections = {
+        scribble: document.getElementById('sectionScribble'),
+        insights: document.getElementById('sectionInsights'),
+        practice: document.getElementById('sectionPractice')
+    };
+
+    function switchSection(target) {
+        Object.values(sections).forEach(s => s.style.display = 'none');
+        Object.values(links).forEach(l => l.classList.remove('active'));
+        
+        sections[target].style.display = 'block';
+        links[target].classList.add('active');
+        
+        // Re-render chart if insights
+        if (target === 'insights') renderInsights();
+    }
+
+    links.scribble.addEventListener('click', (e) => { e.preventDefault(); switchSection('scribble'); });
+    links.insights.addEventListener('click', (e) => { e.preventDefault(); switchSection('insights'); });
+    links.practice.addEventListener('click', (e) => { e.preventDefault(); switchSection('practice'); });
+
+    // Journal Logic
     const diaryForm = document.getElementById('diaryForm');
     const diaryInput = document.getElementById('diaryInput');
     const analyzeBtn = document.getElementById('analyzeBtn');
+    const moodBtns = document.querySelectorAll('.mood-btn');
+    const streakCount = document.getElementById('streakCount');
     const resultContainer = document.getElementById('resultContainer');
-    const moodBadge = document.getElementById('moodBadge');
-    const aiAdvice = document.getElementById('aiAdvice');
     
-    let chartInstance = null;
+    let selectedMood = "";
+    moodBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            moodBtns.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedMood = btn.getAttribute('data-tag');
+        });
+    });
 
-    // Update Streak
     streakCount.innerText = getStreak();
 
-    // Tab Switching
-    function resetTabs() {
-        [tabWrite, tabInsights, tabBreathe].forEach(tab => {
-            tab.classList.remove('active');
-            tab.style.background = 'rgba(255,255,255,0.1)';
-            tab.style.borderColor = 'var(--border-color)';
-        });
-        writeSection.style.display = 'none';
-        insightsSection.style.display = 'none';
-        breatheSection.style.display = 'none';
-    }
-
-    tabWrite.addEventListener('click', () => {
-        resetTabs();
-        tabWrite.classList.add('active');
-        tabWrite.style.background = 'rgba(255,255,255,0.15)';
-        tabWrite.style.borderColor = 'var(--primary-color)';
-        writeSection.style.display = 'block';
-    });
-
-    tabInsights.addEventListener('click', () => {
-        resetTabs();
-        tabInsights.classList.add('active');
-        tabInsights.style.background = 'rgba(255,255,255,0.15)';
-        tabInsights.style.borderColor = 'var(--primary-color)';
-        insightsSection.style.display = 'block';
-        renderInsights();
-    });
-
-    tabBreathe.addEventListener('click', () => {
-        resetTabs();
-        tabBreathe.classList.add('active');
-        tabBreathe.style.background = 'rgba(255,255,255,0.15)';
-        tabBreathe.style.borderColor = 'var(--primary-color)';
-        breatheSection.style.display = 'block';
-    });
-
-    // --- New Features Logic ---
-    
-    // 1. Daily Affirmation
-    const affirmations = [
-        "You are worthy of all the good things that happen to you.",
-        "Take a deep breath. You are doing the best you can.",
-        "Every day is a fresh start. Let go of yesterday.",
-        "Your feelings are valid, and it's okay to feel them.",
-        "You are stronger than you think. Keep going."
-    ];
-    affirmationText.innerText = `"${affirmations[Math.floor(Math.random() * affirmations.length)]}"`;
-
-    // 2. Mood Tags
-    moodTags.forEach(tag => {
-        tag.addEventListener('click', () => {
-            const tagValue = tag.getAttribute('data-tag');
-            if (selectedTags.includes(tagValue)) {
-                selectedTags = selectedTags.filter(t => t !== tagValue);
-                tag.classList.remove('selected');
-            } else {
-                selectedTags.push(tagValue);
-                tag.classList.add('selected');
-            }
-        });
-    });
-
-    // 3. Speech Recognition
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = true;
-        
-        let isRecording = false;
-
-        micBtn.addEventListener('click', () => {
-            if (isRecording) {
-                recognition.stop();
-            } else {
-                recognition.start();
-            }
-        });
-
-        recognition.onstart = () => {
-            isRecording = true;
-            micBtn.classList.add('recording');
-            micBtn.innerText = '🛑 Stop';
-        };
-
-        recognition.onresult = (event) => {
-            let transcript = '';
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                transcript += event.results[i][0].transcript;
-            }
-            diaryInput.value = transcript;
-        };
-
-        recognition.onend = () => {
-            isRecording = false;
-            micBtn.classList.remove('recording');
-            micBtn.innerText = '🎤 Speak';
-        };
-    } else {
-        micBtn.style.display = 'none'; // Hide if unsupported
-    }
-
-    // 4. Breathing Exercise Logic
-    let breatheInterval;
-    startBreatheBtn.addEventListener('click', () => {
-        if (startBreatheBtn.innerText === 'Stop Exercise') {
-            clearInterval(breatheInterval);
-            breatheCircle.className = 'breathe-circle';
-            breatheText.innerText = 'Ready?';
-            startBreatheBtn.innerText = 'Start Exercise';
-            return;
-        }
-
-        startBreatheBtn.innerText = 'Stop Exercise';
-        
-        function cycle() {
-            breatheCircle.className = 'breathe-circle inhale';
-            breatheText.innerText = 'Inhale...';
-            
-            setTimeout(() => {
-                breatheCircle.className = 'breathe-circle hold';
-                breatheText.innerText = 'Hold...';
-                
-                setTimeout(() => {
-                    breatheCircle.className = 'breathe-circle exhale';
-                    breatheText.innerText = 'Exhale...';
-                }, 4000); // Hold for 4s
-            }, 4000); // Inhale for 4s
-        }
-
-        cycle();
-        breatheInterval = setInterval(cycle, 14000); // Total cycle: 4 + 4 + 6 = 14s
-    });
-
-    // Form Submission
     diaryForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const text = diaryInput.value.trim();
         if (!text) return;
 
-        analyzeBtn.innerText = 'Analyzing...';
+        analyzeBtn.innerText = 'Reflecting...';
         analyzeBtn.disabled = true;
 
         setTimeout(() => {
-            let finalContext = text;
-            if (selectedTags.length > 0) {
-                finalContext = `[Tags: ${selectedTags.join(', ')}] ` + text;
-            }
-            
-            const { score, mood } = analyzeMood(finalContext);
-            saveEntry(finalContext, score, mood);
-            
-            // Clear tags after submission
-            selectedTags = [];
-            moodTags.forEach(t => t.classList.remove('selected'));
-            
-            // Update Streak
-            streakCount.innerText = getStreak();
+            const contextText = selectedMood ? `[Feeling: ${selectedMood}] ${text}` : text;
+            const { score, mood } = analyzeMood(contextText);
+            saveEntry(contextText, score, mood);
             
             // Show Results
-            const advice = getAdvice(mood);
-            let emoji = "😐";
-            let badgeClass = "badge neutral";
-            
-            if (mood === "Positive") { emoji = "😊"; badgeClass = "badge success"; }
-            else if (mood === "Negative") { emoji = "😔"; badgeClass = "badge error"; }
-
-            moodBadge.className = badgeClass;
-            moodBadge.innerHTML = `<strong>Detected Mood:</strong> ${mood} ${emoji}`;
-            aiAdvice.innerText = `"${advice}"`;
-            
+            document.getElementById('moodBadge').innerText = `Mood Detected: ${mood}`;
+            document.getElementById('aiAdvice').innerText = getAdvice(mood);
             resultContainer.style.display = 'block';
-            diaryInput.value = '';
             
-            analyzeBtn.innerText = 'Analyze Mood ✨';
+            // Reset
+            diaryInput.value = '';
+            moodBtns.forEach(b => b.classList.remove('selected'));
+            selectedMood = "";
+            streakCount.innerText = getStreak();
+            analyzeBtn.innerText = 'Save Reflection ✨';
             analyzeBtn.disabled = false;
-        }, 800); // Small artificial delay for effect
+        }, 1000);
     });
 
-    // Render Insights
-    function renderInsights() {
-        const entries = getEntries().slice(-7).reverse(); // Last 7 entries
-        const historyContainer = document.getElementById('historyContainer');
-        historyContainer.innerHTML = '';
+    // Breathing Logic
+    const startBreatheBtn = document.getElementById('startBreatheBtn');
+    const breatheCircle = document.getElementById('breatheCircle');
+    const breatheText = document.getElementById('breatheText');
+    let breatheActive = false;
 
-        if (entries.length === 0) {
-            historyContainer.innerHTML = '<p style="color: var(--text-muted);">No entries yet! Please write a new entry first to see insights.</p>';
+    startBreatheBtn.addEventListener('click', () => {
+        if (breatheActive) {
+            breatheActive = false;
+            startBreatheBtn.innerText = 'Start Session';
+            breatheText.innerText = 'Ready';
+            breatheCircle.style.transform = 'scale(1)';
             return;
         }
+        breatheActive = true;
+        startBreatheBtn.innerText = 'End Session';
+        runBreatheCycle();
+    });
 
-        // Populate History
-        entries.forEach(entry => {
-            const d = new Date(entry.date);
-            const dateStr = d.toLocaleDateString();
-            
-            let emoji = "😐";
-            if (entry.mood === "Positive") emoji = "😊";
-            else if (entry.mood === "Negative") emoji = "😔";
+    function runBreatheCycle() {
+        if (!breatheActive) return;
+        breatheText.innerText = 'Inhale';
+        breatheCircle.style.transform = 'scale(1.5)';
+        setTimeout(() => {
+            if (!breatheActive) return;
+            breatheText.innerText = 'Hold';
+            setTimeout(() => {
+                if (!breatheActive) return;
+                breatheText.innerText = 'Exhale';
+                breatheCircle.style.transform = 'scale(1)';
+                setTimeout(runBreatheCycle, 4000);
+            }, 2000);
+        }, 4000);
+    }
 
-            const div = document.createElement('div');
-            div.className = 'history-item';
-            div.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
-                    <strong>${dateStr} - Mood: ${entry.mood} ${emoji}</strong>
-                    <span style="color: var(--text-muted); font-size: 0.8rem;">Score: ${entry.score.toFixed(2)} ▼</span>
-                </div>
-                <div class="gsap-reveal-stagger history-item" style="display: none; margin-top: 1rem; padding: 2rem; background: var(--bg-main); border-radius: 20px; border: 2px solid var(--border-color);">
-                    <p style="color: var(--text-main); font-family: 'Playfair Display', serif; font-size: 1.3rem; font-style: italic;">"${entry.text}"</p>
-                </div>
-            `;
-            historyContainer.appendChild(div);
-        });
-
-        // Render Chart
+    // Insights Chart
+    let chartInstance = null;
+    function renderInsights() {
+        const entries = getEntries().slice(-7);
         const ctx = document.getElementById('moodChart').getContext('2d');
-        const labels = entries.slice().reverse().map(e => new Date(e.date).toLocaleDateString());
-        const data = entries.slice().reverse().map(e => e.score);
+        const labels = entries.map(e => new Date(e.date).toLocaleDateString());
+        const data = entries.map(e => e.score);
 
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
-
+        if (chartInstance) chartInstance.destroy();
         chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Vibe Score',
+                    label: 'Vibe',
                     data: data,
-                    borderColor: '#8C52FF',
-                    backgroundColor: 'rgba(140, 82, 255, 0.1)',
-                    borderWidth: 4,
-                    pointBackgroundColor: '#FF5A36',
-                    pointBorderColor: '#FDFBF7',
+                    borderColor: '#58A6FF',
+                    tension: 0.4,
+                    fill: false,
                     pointRadius: 6,
-                    fill: true,
-                    tension: 0.5
+                    pointBackgroundColor: '#BC8CFF'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: {
-                        min: -1,
-                        max: 1,
-                        grid: { display: false },
-                        ticks: { color: '#737373', font: { family: "'Outfit', sans-serif", size: 14, weight: 600 } }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: '#737373', font: { family: "'Outfit', sans-serif", size: 14, weight: 600 } }
-                    }
+                    y: { min: -1, max: 1, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    x: { grid: { display: false } }
                 },
-                plugins: {
-                    legend: { display: false }
-                }
+                plugins: { legend: { display: false } }
             }
+        });
+
+        // History
+        const historyContainer = document.getElementById('historyContainer');
+        historyContainer.innerHTML = '<h3>Recent Spills</h3>';
+        entries.reverse().forEach(e => {
+            const div = document.createElement('div');
+            div.className = 'glass-card';
+            div.style.marginBottom = '1rem';
+            div.innerHTML = `<p style="color: var(--primary); font-size: 0.9rem;">${new Date(e.date).toLocaleString()}</p><p>"${e.text}"</p>`;
+            historyContainer.appendChild(div);
         });
     }
 });
