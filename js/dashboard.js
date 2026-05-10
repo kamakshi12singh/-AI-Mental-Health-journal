@@ -1,5 +1,4 @@
-import vader from 'https://esm.sh/vader-sentiment@1.1.3';
-
+// --- Robust Local Sentiment Analyzer (Works on file:/// without CORS issues) ---
 // --- Database Logic (localStorage) ---
 const DB_KEY = 'serenity_diary_entries';
 
@@ -62,13 +61,30 @@ function getStreak() {
 
 // --- AI Logic ---
 function analyzeMood(text) {
-    const intensity = vader.SentimentIntensityAnalyzer.polarity_scores(text);
-    const compound = intensity.compound;
-    let mood = "Neutral";
-    if (compound >= 0.05) mood = "Positive";
-    else if (compound <= -0.05) mood = "Negative";
+    const lowerText = text.toLowerCase();
     
-    return { score: compound, mood: mood };
+    // Simple dictionary
+    const positiveWords = ['happy', 'great', 'good', 'joy', 'excited', 'calm', 'grateful', 'blessed', 'awesome', 'amazing', 'love', 'peace', 'nice', 'better'];
+    const negativeWords = ['sad', 'bad', 'angry', 'anxious', 'stressed', 'tired', 'terrible', 'awful', 'hate', 'depressed', 'overwhelmed', 'frustrated', 'worst'];
+    
+    let score = 0;
+    
+    positiveWords.forEach(word => {
+        if (lowerText.includes(word)) score += 0.5;
+    });
+    
+    negativeWords.forEach(word => {
+        if (lowerText.includes(word)) score -= 0.5;
+    });
+    
+    // Normalize score between -1 and 1
+    score = Math.max(-1, Math.min(1, score));
+
+    let mood = "Neutral";
+    if (score >= 0.2) mood = "Positive";
+    else if (score <= -0.2) mood = "Negative";
+    
+    return { score: score, mood: mood };
 }
 
 function getAdvice(mood) {

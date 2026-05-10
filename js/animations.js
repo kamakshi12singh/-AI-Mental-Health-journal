@@ -32,35 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     requestAnimationFrame(raf);
 
-    // 2. Custom Cursor Physics
-    const cursor = document.querySelector('.custom-cursor');
-    if (cursor && !window.matchMedia("(max-width: 768px)").matches) {
-        let mouseX = 0;
-        let mouseY = 0;
-        let cursorX = 0;
-        let cursorY = 0;
-
-        window.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        });
-
-        // Smooth trailing effect
-        const renderCursor = () => {
-            cursorX += (mouseX - cursorX) * 0.15;
-            cursorY += (mouseY - cursorY) * 0.15;
-            cursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
-            requestAnimationFrame(renderCursor);
-        };
-        requestAnimationFrame(renderCursor);
-
-        // Hover states for interactive elements
-        const interactiveElements = document.querySelectorAll('a, button, .mood-tag, .history-item');
-        interactiveElements.forEach(el => {
-            el.addEventListener('mouseenter', () => cursor.classList.add('active'));
-            el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
-        });
-    }
+    // 2. Custom Cursor Physics Removed based on feedback
 
     // 3. Magnetic Buttons
     const magneticElements = document.querySelectorAll('.magnetic-btn');
