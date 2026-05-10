@@ -320,8 +320,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <strong>${dateStr} - Mood: ${entry.mood} ${emoji}</strong>
                     <span style="color: var(--text-muted); font-size: 0.8rem;">Score: ${entry.score.toFixed(2)} ▼</span>
                 </div>
-                <div style="display: none; margin-top: 1rem; padding: 1.5rem; background: var(--bg-alt); border-left: 2px solid var(--primary);">
-                    <p style="color: var(--text-main); font-family: 'Lora', serif; font-size: 1.1rem; font-style: italic;">"${entry.text}"</p>
+                <div class="gsap-reveal-stagger history-item" style="display: none; margin-top: 1rem; padding: 2rem; background: var(--bg-main); border-radius: 20px; border: 2px solid var(--border-color);">
+                    <p style="color: var(--text-main); font-family: 'Playfair Display', serif; font-size: 1.3rem; font-style: italic;">"${entry.text}"</p>
                 </div>
             `;
             historyContainer.appendChild(div);
@@ -341,16 +341,16 @@ document.addEventListener('DOMContentLoaded', () => {
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Sentiment Score',
+                    label: 'Vibe Score',
                     data: data,
-                    borderColor: '#2A4B42',
-                    backgroundColor: 'rgba(42, 75, 66, 0.05)',
-                    borderWidth: 2,
-                    pointBackgroundColor: '#C05C4C',
-                    pointBorderColor: '#FAF9F6',
-                    pointRadius: 4,
+                    borderColor: '#8C52FF',
+                    backgroundColor: 'rgba(140, 82, 255, 0.1)',
+                    borderWidth: 4,
+                    pointBackgroundColor: '#FF5A36',
+                    pointBorderColor: '#FDFBF7',
+                    pointRadius: 6,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.5
                 }]
             },
             options: {
@@ -361,11 +361,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         min: -1,
                         max: 1,
                         grid: { display: false },
-                        ticks: { color: '#6B6861', font: { family: "'DM Sans', sans-serif" } }
+                        ticks: { color: '#737373', font: { family: "'Outfit', sans-serif", size: 14, weight: 600 } }
                     },
                     x: {
                         grid: { display: false },
-                        ticks: { color: '#6B6861', font: { family: "'DM Sans', sans-serif" } }
+                        ticks: { color: '#737373', font: { family: "'Outfit', sans-serif", size: 14, weight: 600 } }
                     }
                 },
                 plugins: {
