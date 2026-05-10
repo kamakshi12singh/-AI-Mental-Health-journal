@@ -1,6 +1,19 @@
 // Interactive Animation Controller (Lenis, GSAP, Custom Cursor)
 
 document.addEventListener("DOMContentLoaded", () => {
+    // 0. Calming Onboarding
+    const onboardingOverlay = document.getElementById('onboardingOverlay');
+    const onboardingText = document.getElementById('onboardingText');
+    
+    if (onboardingOverlay && onboardingText) {
+        const tl = gsap.timeline();
+        tl.to(onboardingText, { opacity: 1, y: -20, duration: 1.5, ease: "power2.out" })
+          .to(onboardingText, { opacity: 0, duration: 1, delay: 1 })
+          .to(onboardingOverlay, { opacity: 0, duration: 1.5, ease: "power2.inOut", onComplete: () => {
+              onboardingOverlay.style.display = 'none';
+          } });
+    }
+
     // 1. Initialize Lenis (Smooth Scrolling)
     const lenis = new Lenis({
         duration: 1.2,

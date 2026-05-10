@@ -13,6 +13,7 @@
     --error: #EF476F;         /* Pinkish Red */
     --border-color: #E6E2D8;  
     
+    --soft-shadow: 0 15px 35px rgba(0, 0, 0, 0.04);
     --cursor-size: 20px;
 }
 
@@ -202,17 +203,18 @@ nav {
 
 textarea, input {
     width: 100%;
-    padding: 1.5rem;
+    padding: 2rem;
     background: var(--bg-alt);
     border: none;
-    border-radius: 20px;
+    border-radius: 30px;
     color: var(--text-main);
     font-family: 'Outfit', sans-serif;
     font-size: 1.3rem;
-    line-height: 1.6;
+    line-height: 1.8;
     outline: none;
     transition: box-shadow 0.3s ease;
     resize: vertical;
+    box-shadow: var(--soft-shadow);
 }
 
 textarea:focus, input:focus {
@@ -238,15 +240,16 @@ textarea:focus, input:focus {
 }
 
 .mood-tag:hover {
-    background: var(--border-color);
+    background: var(--bg-main);
     transform: translateY(-2px);
+    box-shadow: var(--soft-shadow);
 }
 
 .mood-tag.selected {
     background: var(--primary);
     color: var(--bg-main);
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(255, 90, 54, 0.3);
+    box-shadow: 0 15px 30px rgba(255, 90, 54, 0.2);
 }
 
 /* Badges */
@@ -284,12 +287,13 @@ textarea:focus, input:focus {
 /* Dashboard UI */
 .streak-banner {
     background: var(--bg-alt);
-    border-radius: 30px;
-    padding: 2rem 3rem;
+    border-radius: 40px;
+    padding: 3rem 4rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 3rem;
+    margin-bottom: 4rem;
+    box-shadow: var(--soft-shadow);
 }
 
 .streak-count-wrapper .value {
@@ -348,6 +352,53 @@ textarea:focus, input:focus {
 
 @keyframes blobInhale { 0% { transform: scale(1); } 100% { transform: scale(1.6); } }
 @keyframes blobExhale { 0% { transform: scale(1.6); } 100% { transform: scale(1); } }
+
+/* Playful Blobs / Organic Shapes */
+.organic-blob {
+    position: absolute;
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    animation: organicFloat 12s ease-in-out infinite alternate;
+    z-index: -1;
+    filter: blur(2px);
+}
+
+@keyframes organicFloat {
+    0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; transform: rotate(0deg) scale(1); }
+    100% { border-radius: 60% 40% 30% 70% / 60% 50% 40% 50%; transform: rotate(10deg) scale(1.05); }
+}
+
+/* Hand-drawn SVG style */
+.hand-drawn {
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    stroke: currentColor;
+}
+
+/* Onboarding Overlay */
+.onboarding-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--bg-main);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    pointer-events: none; /* Let clicks pass through once it fades */
+}
+
+.onboarding-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    color: var(--text-muted);
+    font-style: italic;
+    opacity: 0;
+}
 
 footer {
     text-align: center;
