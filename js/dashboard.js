@@ -320,8 +320,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <strong>${dateStr} - Mood: ${entry.mood} ${emoji}</strong>
                     <span style="color: var(--text-muted); font-size: 0.8rem;">Score: ${entry.score.toFixed(2)} ▼</span>
                 </div>
-                <div style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">${entry.text}</p>
+                <div style="display: none; margin-top: 1rem; padding: 1.5rem; background: var(--bg-alt); border-left: 2px solid var(--primary);">
+                    <p style="color: var(--text-main); font-family: 'Lora', serif; font-size: 1.1rem; font-style: italic;">"${entry.text}"</p>
                 </div>
             `;
             historyContainer.appendChild(div);
@@ -343,12 +343,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 datasets: [{
                     label: 'Sentiment Score',
                     data: data,
-                    borderColor: '#10B981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    borderWidth: 3,
-                    pointBackgroundColor: '#4F46E5',
-                    pointBorderColor: '#fff',
-                    pointRadius: 5,
+                    borderColor: '#2A4B42',
+                    backgroundColor: 'rgba(42, 75, 66, 0.05)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#C05C4C',
+                    pointBorderColor: '#FAF9F6',
+                    pointRadius: 4,
                     fill: true,
                     tension: 0.4
                 }]
@@ -360,12 +360,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     y: {
                         min: -1,
                         max: 1,
-                        grid: { color: 'rgba(255,255,255,0.1)' },
-                        ticks: { color: '#94a3b8' }
+                        grid: { display: false },
+                        ticks: { color: '#6B6861', font: { family: "'DM Sans', sans-serif" } }
                     },
                     x: {
                         grid: { display: false },
-                        ticks: { color: '#94a3b8' }
+                        ticks: { color: '#6B6861', font: { family: "'DM Sans', sans-serif" } }
                     }
                 },
                 plugins: {
