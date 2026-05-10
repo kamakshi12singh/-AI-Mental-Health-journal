@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your private AI mental health dashboard.">
+    <title>Dashboard | Serenity AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Chart.js for Insights -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">🌱 Serenity AI</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="dashboard.html" class="active">Dashboard</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <div class="streak-banner">
+            <div>
+                <h2 style="margin: 0; font-size: 1.5rem;">Welcome back!</h2>
+                <p style="color: var(--text-muted); margin: 0;">Your safe space to reflect.</p>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 0.9rem; color: var(--text-muted);">Current Streak</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: white;">🔥 <span id="streakCount">0</span> days</div>
+            </div>
+        </div>
+
+        <!-- Dashboard Navigation -->
+        <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+            <button class="btn-secondary active" id="tabWrite" style="background: rgba(255,255,255,0.15); border-color: var(--primary-color);">📝 Write Entry</button>
+            <button class="btn-secondary" id="tabInsights">📊 View Insights</button>
+            <button class="btn-secondary" id="tabBreathe">🧘 Breathe</button>
+        </div>
+
+        <!-- Write Entry Section -->
+        <div id="writeSection">
+            <!-- Affirmation Widget -->
+            <div class="card affirmation-card" style="margin-bottom: 2rem; text-align: center; border-left: 4px solid var(--primary-color);">
+                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">✨ Daily Affirmation</div>
+                <p id="affirmationText" style="font-size: 1.1rem; font-style: italic; color: var(--text-main);">"Loading your daily dose of positivity..."</p>
+            </div>
+
+            <h1 style="font-size: 2.5rem;">What's on your mind today?</h1>
+            <p class="subtitle">Take a deep breath and tell me about your day. I am here to listen. 💙</p>
+            
+            <div class="card">
+                <form id="diaryForm">
+                    <div class="form-group">
+                        <label>Quick Tags: How are you feeling right now?</label>
+                        <div class="mood-tags" id="moodTagsContainer">
+                            <span class="mood-tag" data-tag="Happy">Happy</span>
+                            <span class="mood-tag" data-tag="Anxious">Anxious</span>
+                            <span class="mood-tag" data-tag="Tired">Tired</span>
+                            <span class="mood-tag" data-tag="Grateful">Grateful</span>
+                            <span class="mood-tag" data-tag="Stressed">Stressed</span>
+                            <span class="mood-tag" data-tag="Calm">Calm</span>
+                        </div>
+                    </div>
+                    <div class="form-group" style="position: relative;">
+                        <textarea id="diaryInput" rows="8" placeholder="Write your diary entry here (try to be as detailed as you like)..." required></textarea>
+                    </div>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <button type="submit" class="btn-primary" id="analyzeBtn">Analyze Mood ✨</button>
+                        <button type="button" class="btn-secondary" id="micBtn" title="Start voice recording">🎤 Speak</button>
+                    </div>
+                </form>
+
+                <div id="resultContainer" style="display: none; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
+                    <div id="moodBadge" class="badge" style="font-size: 1rem; margin-bottom: 1rem;"></div>
+                    <div style="background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--primary-color);">
+                        <h3 style="margin-bottom: 0.5rem;">Simple AI Advice 💡</h3>
+                        <p id="aiAdvice" style="font-style: italic; color: var(--text-muted);"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Insights Section -->
+        <div id="insightsSection" style="display: none;">
+            <h1 style="font-size: 2.5rem;">Your Weekly Mood Insights</h1>
+            <p class="subtitle">Review your mood trends over the last few entries.</p>
+            
+            <div class="card" style="margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem;">Mood Trend (Last 7 entries)</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Score scale: -1 (Negative) to +1 (Positive)</p>
+                <div style="height: 300px; width: 100%;">
+                    <canvas id="moodChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1.5rem;">Recent Entries History</h3>
+                <div id="historyContainer">
+                    <!-- History injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Breathe Section -->
+        <div id="breatheSection" style="display: none; text-align: center; padding: 4rem 0;">
+            <h1 style="font-size: 2.5rem;">Take a Moment to Breathe</h1>
+            <p class="subtitle" style="margin: 0 auto 3rem auto;">Follow the circle. Inhale as it grows, hold, and exhale as it shrinks.</p>
+            
+            <div class="breathe-container">
+                <div class="breathe-circle" id="breatheCircle">
+                    <span id="breatheText" style="font-size: 1.5rem; font-weight: 600; z-index: 10;">Ready?</span>
+                </div>
+            </div>
+            
+            <button class="btn-primary" id="startBreatheBtn" style="margin-top: 3rem;">Start Exercise</button>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Serenity AI Companion. All rights reserved.</p>
+    </footer>
+
+    <!-- Sentiment Analysis Module and Dashboard Logic -->
+    <script type="module" src="js/dashboard.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
