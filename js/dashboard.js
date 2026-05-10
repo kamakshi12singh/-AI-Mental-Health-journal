@@ -69,6 +69,50 @@ document.addEventListener('DOMContentLoaded', () => {
         views[target].style.display = 'block';
         navs[target].classList.add('active');
         if (target === 'insights') renderInsights();
+        if (target === 'practice') updateZenAnalysis();
+    }
+
+    // Zen Analysis Logic
+    function updateZenAnalysis() {
+        const entries = getEntries();
+        const streak = getStreak();
+        const zenRating = document.getElementById('zenRating');
+        const zenSummary = document.getElementById('zenSummary');
+        const stabilityVal = document.getElementById('stabilityVal');
+        const zenStreakVal = document.getElementById('zenStreakVal');
+
+        if (entries.length < 2) {
+            zenRating.innerText = "Need Data";
+            zenSummary.innerText = "Share a few more thoughts to unlock your growth analysis.";
+            return;
+        }
+
+        // Calculate stability (variance in scores)
+        const scores = entries.slice(-5).map(e => e.score);
+        const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+        const variance = scores.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / scores.length;
+        const stability = Math.max(0, 100 - (variance * 200));
+
+        stabilityVal.innerText = `${stability.toFixed(0)}%`;
+        zenStreakVal.innerText = `${streak} Days`;
+
+        // Determine Rating
+        let rating = "Steady";
+        let summary = "You're maintaining a consistent mental baseline. Keep practicing.";
+
+        if (stability > 85 && avg > 0.3) {
+            rating = "Exceptional";
+            summary = "Your clarity is at its peak. You've achieved a rare state of focused calm.";
+        } else if (avg < -0.2) {
+            rating = "Healing";
+            summary = "You're processing heavy thoughts. This honesty is the first step to growth.";
+        } else if (streak > 3) {
+            rating = "Gaining Momentum";
+            summary = "Your consistency is building a strong foundation for mental resilience.";
+        }
+
+        zenRating.innerText = rating;
+        zenSummary.innerText = summary;
     }
 
     navs.scribble.addEventListener('click', (e) => { e.preventDefault(); switchView('scribble'); });
